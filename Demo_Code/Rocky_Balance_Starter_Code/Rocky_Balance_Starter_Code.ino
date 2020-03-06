@@ -86,13 +86,13 @@ void BalanceRocky()
 
     // Enter the control parameters here
     
-    float Kp = 0;
-    float Ki = 0;
+    float Kp = 1903.8;
+    float Ki = 13248;
 
-    float Ci = 0;
+    float Ci = -680.34;
     
-    float Jp = 0;
-    float Ji = 0;
+    float Jp = 85.71;
+    float Ji = -1426.4;
 
 
     float v_c_L, v_c_R; // these are the control velocities to be sent to the motors
@@ -313,4 +313,3 @@ if(cur_time - prev_print_time > 103)   // do the printing every 105 ms. Don't wa
 
  
 }
-
