@@ -68,7 +68,7 @@ Balboa32U4Buzzer buzzer;
 Balboa32U4ButtonA buttonA;
 
 
-#define FIXED_ANGLE_CORRECTION (0.26)  // Replace the value 0.25 with the value you obtained from the Gyro calibration procedure
+#define FIXED_ANGLE_CORRECTION (0.29)  // Replace the value 0.25 with the value you obtained from the Gyro calibration procedure
 
 
 
@@ -164,6 +164,9 @@ int16_t time_count = 0;
 extern int16_t angle_prev;
 int16_t start_flag = 0;
 int16_t start_counter = 0;
+int16_t invertDir = 0;
+uint32_t inv_time = 0;
+const uint8_t INV_TIME_MS = 650;
 void lyingDown();
 extern bool isBalancingStatus;
 extern bool balanceUpdateDelayedStatus;
@@ -225,8 +228,6 @@ void balanceResetAccumulators()
     speed_err_right_acc = 0.0;
 }
 
-
-
 void loop()
 {
   static uint32_t prev_print_time = 0;   // this variable is to control how often we print on the serial monitor
@@ -276,12 +277,27 @@ void loop()
     // Control the robot
     BalanceRocky();
   }
+  else {
+    if (cur_time - inv_time >= INV_TIME_MS) {
+    // save the last time you blinked the LED
+    inv_time = cur_time;
+
+    // if the LED is off turn it on and vice-versa:
+    if (invertDir) {
+      motors.setSpeeds(1,1);
+      invertDir = 0;
+    } else {
+      motors.setSpeeds(-1,-1);
+      invertDir = 1;
+    }
+    }
+  }
   prev_time = cur_time;
   }  
 // if the robot is more than 45 degrees, shut down the motor
+// OR consider: Just flip it back up
   if(start_flag && angle_rad > .78)
   {
-    motors.setSpeeds(0,0);
     start_flag = 0;
   }
   else if(start_flag && angle < -0.78)
