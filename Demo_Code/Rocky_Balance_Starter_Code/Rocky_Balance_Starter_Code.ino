@@ -68,7 +68,7 @@ Balboa32U4Buzzer buzzer;
 Balboa32U4ButtonA buttonA;
 
 
-#define FIXED_ANGLE_CORRECTION (0.29)  // Replace the value 0.25 with the value you obtained from the Gyro calibration procedure
+#define FIXED_ANGLE_CORRECTION (0.24)  // Replace the value 0.25 with the value you obtained from the Gyro calibration procedure
 
 
 
@@ -164,7 +164,7 @@ int16_t time_count = 0;
 extern int16_t angle_prev;
 int16_t start_flag = 0;
 int16_t start_counter = 0;
-int16_t invertDir = 0;
+int16_t invertDir = 1;
 uint32_t inv_time = 0;
 const uint8_t INV_TIME_MS = 650;
 void lyingDown();
@@ -251,7 +251,7 @@ void loop()
    }
 
 
-  if(angle_rad > -0.3 && angle_rad < 0.3 && ! start_flag)
+  if(angle_rad > -0.4 && angle_rad < 0.4 && ! start_flag)
   {
     /* // increment the start counter */
     /* start_counter++; */
@@ -266,6 +266,7 @@ void loop()
     /* } */
     balanceResetEncoders();
     start_flag = 1;
+    BalanceRocky();
     buzzer.playFrequency(DIV_BY_10 | 445, 1000, 15);
     Serial.println("Starting");
     ledYellow(1);
@@ -284,28 +285,17 @@ void loop()
   }
   else {
     if (cur_time - inv_time >= INV_TIME_MS) {
-    // save the last time you blinked the LED
-    inv_time = cur_time;
-
-    // if the LED is off turn it on and vice-versa:
-    if (invertDir) {
-      motors.setSpeeds(1,1);
-      invertDir = 0;
-    } else {
-      motors.setSpeeds(-1,-1);
-      invertDir = 1;
-    }
+      // save the last time you blinked the LED
+      inv_time = cur_time;
+      invertDir = -1*invertDir;
+      motors.setSpeeds(invertDir*100, invertDir*100);
     }
   }
   prev_time = cur_time;
   }
 // if the robot is more than 45 degrees, shut down the motor
 // OR consider: Just flip it back up
-  if(start_flag && angle_rad > .78)
-  {
-    start_flag = 0;
-  }
-  else if(start_flag && angle < -0.78)
+  if(start_flag && (angle_rad > .78 || angle_rad < -0.78))
   {
     start_flag = 0;
   }
