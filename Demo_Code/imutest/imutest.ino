@@ -36,6 +36,7 @@ void setup() {
 }
 
 void loop(){
+    imu.read();
 		Serial.print("x: ");
 		Serial.print(imu.a.x);
 		Serial.print("y: ");
